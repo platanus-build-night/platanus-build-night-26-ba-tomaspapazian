@@ -26,17 +26,57 @@ export interface ScanResponse {
   summary: ScanSummary
 }
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') ?? ''
+function resolveApiBase(): string {
+  const raw = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim()
+  if (!raw) return ''
+
+  const normalized = raw.replace(/\/$/, '')
+  try {
+    const parsed = new URL(normalized)
+    if (typeof window !== 'undefined') {
+      const runningOverHttps = window.location.protocol === 'https:'
+      const isLocalApi = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1'
+
+      // Safety fallback for production deploys accidentally configured to localhost.
+      if (isLocalApi && !window.location.hostname.includes('localhost')) {
+        console.warn('[PulseScore] Ignoring localhost VITE_API_BASE_URL in non-local environment.')
+        return ''
+      }
+
+      // Avoid mixed-content failures from https frontend to http backend.
+      if (runningOverHttps && parsed.protocol === 'http:') {
+        const httpsVersion = normalized.replace(/^http:/, 'https:')
+        console.warn('[PulseScore] Converted VITE_API_BASE_URL to https to avoid mixed-content.')
+        return httpsVersion
+      }
+    }
+    return normalized
+  } catch {
+    return normalized
+  }
+}
+
+const API_BASE = resolveApiBase()
 const withBase = (path: string) => `${API_BASE}${path}`
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(withBase(path), {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  })
+  const url = withBase(path)
+  let res: Response
+  try {
+    res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+      ...options,
+    })
+  } catch (e) {
+    const detail = e instanceof Error ? e.message : String(e)
+    throw new Error(
+      `Network error calling ${url}. Check backend URL/CORS/HTTPS configuration. Original error: ${detail}`
+    )
+  }
+
   if (!res.ok) {
     const text = await res.text()
-    throw new Error(`${res.status}: ${text}`)
+    throw new Error(`Request failed ${res.status} on ${url}: ${text}`)
   }
   return res.json() as Promise<T>
 }
