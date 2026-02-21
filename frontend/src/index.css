@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: 15 17 23;
+  --color-panel: 26 29 39;
+  --color-card: 33 37 58;
+  --color-accent: 99 102 241;
+  --color-health-critical: 239 68 68;
+  --color-health-at-risk: 249 115 22;
+  --color-health-good: 234 179 8;
+  --color-health-healthy: 34 197 94;
+  --color-text: 226 232 240;
+  --color-scroll-track: 26 29 39;
+  --color-scroll-thumb: 55 65 81;
+  --color-scroll-thumb-hover: 75 85 99;
+}
+
+[data-theme='light'] {
+  --color-bg: 186 198 214;
+  --color-panel: 111 128 149;
+  --color-card: 126 146 170;
+  --color-accent: 79 70 229;
+  --color-health-critical: 220 38 38;
+  --color-health-at-risk: 234 88 12;
+  --color-health-good: 202 138 4;
+  --color-health-healthy: 22 163 74;
+  --color-text: 241 245 249;
+  --color-scroll-track: 111 128 149;
+  --color-scroll-thumb: 71 85 105;
+  --color-scroll-thumb-hover: 51 65 85;
+}
+
+body {
+  background-color: rgb(var(--color-bg));
+  color: rgb(var(--color-text));
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgb(var(--color-scroll-track));
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-scroll-thumb));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-scroll-thumb-hover));
+}
