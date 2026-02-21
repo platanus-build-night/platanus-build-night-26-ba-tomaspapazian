@@ -26,8 +26,11 @@ export interface ScanResponse {
   summary: ScanSummary
 }
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') ?? ''
+const withBase = (path: string) => `${API_BASE}${path}`
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
+  const res = await fetch(withBase(path), {
     headers: { 'Content-Type': 'application/json' },
     ...options,
   })

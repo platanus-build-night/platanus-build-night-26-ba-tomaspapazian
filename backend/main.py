@@ -57,9 +57,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="PulseScore API", lifespan=lifespan)
 
+origins_env = os.getenv("FRONTEND_ORIGINS")
+allowed_origins = [o.strip() for o in origins_env.split(",")] if origins_env else ["http://localhost:5173"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
